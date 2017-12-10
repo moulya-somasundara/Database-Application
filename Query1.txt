@@ -1,0 +1,22 @@
+Name: Moulya Soma Sundara
+CWID: 10415052
+=================================================================================================================================================================================================
+Query 1:For each customer compute the minimum and maximum sales quantities along with the corresponding products (purchased), dates 
+(i.e., dates of those minimum and maximum sales quantities) and the state in which the sale transaction took place. 
+If there are >1 occurrences of the min or max, choose one Ð do not display all.
+=================================================================================================================================================================================================
+with max_sale as
+	(with table_of_max as
+		(select cust,max(quant)as quant from sales group by cust)
+	select cust,prod as prod1,quant as max_quant,month as mm1,day as dd1,year as yy1,state as st1
+	from table_of_max natural join sales),
+min_sale as
+	(with table_of_min as
+		(select cust,min(quant)as quant from sales group by cust)
+	select cust,prod as prod2,quant as min_quant,month as mm2,day as dd2,year as yy2,state as st2
+	from table_of_min natural join sales),
+average_sale as
+	(select cust,round(avg(quant),0)as average from sales group by cust)
+select cust as CUSTOMER,min_quant as MIN_Q,prod2 as PRODUCT,mm2 as MM,dd2 as DD,yy2 as YY,st2 as ST,max_quant as MAX_Q,prod1 as PRODUCT,mm1 as MM,dd1 as DD,yy1 as YY,st1 as ST,average as AVG
+from max_sale natural join min_sale natural join average_sale
+=================================================================================================================================================================================================

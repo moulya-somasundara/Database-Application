@@ -1,0 +1,53 @@
+SELECT * FROM(SELECT * FROM
+(SELECT * FROM 
+ (SELECT s1.cust,s1.prod,max(s1.quant)as NJ_MAX
+from sales s1
+where s1.state = 'NJ' and s1.year < 2008
+group by s1.cust,s1.prod
+order by cust) AS NJ 
+
+INNER JOIN
+
+(SELECT s2.cust,
+       s2.prod,max(s2.quant)as NJ_MAX,s2.month,s2.day,s2.year
+from sales s2
+where s2.state = 'NJ' and s2.year < 2008
+group by s2.cust,s2.prod,s2.month,s2.day,s2.year
+order by cust) AS NJ_DATES USING (cust,prod,NJ_MAX) ) AS V1
+
+FULL OUTER JOIN
+
+(SELECT * FROM (SELECT s3.cust,
+       s3.prod,min(s3.quant)as NY_MIN
+from sales s3
+where s3.state = 'NY' and s3.year < 2008
+group by s3.cust,s3.prod
+order by cust) AS NY
+
+INNER JOIN
+
+(SELECT s4.cust,
+       s4.prod,min(s4.quant)as NY_MIN,s4.month,s4.day,s4.year
+from sales s4
+where s4.state = 'NY' and s4.year < 2008
+group by s4.cust,s4.prod,s4.month,s4.day,s4.year
+order by cust) AS NY_DATES USING (cust,prod,NY_MIN) ) as V2 USING (cust,prod)) as V3
+
+FULL OUTER JOIN
+
+
+(SELECT * FROM (SELECT s5.cust,
+       s5.prod,min(s5.quant)as CT_MIN      
+from sales s5
+where s5.state = 'CT'
+group by s5.cust,s5.prod
+order by cust) AS CT
+
+INNER JOIN
+
+(SELECT s6.cust,
+       s6.prod,min(s6.quant)as CT_MIN,s6.month,s6.day,s6.year
+from sales s6
+where s6.state = 'CT'
+group by s6.cust,s6.prod,s6.month,s6.day,s6.year
+order by cust) AS CT_DATES USING (cust,prod,CT_MIN) ) AS V4 USING (cust,prod)
